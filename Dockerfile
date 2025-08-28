@@ -1,35 +1,36 @@
 FROM php:8.2-apache
 
-# Pacotes do SO necessários para extensões
+# Pacotes de SO necessários (nomes corretos para Debian Bookworm)
 RUN apt-get update && apt-get install -y \
     git unzip \
     libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
-    libicu-dev libc-client-dev libkrb5-dev \
-    libxml2-dev libonig-dev \
+    libicu-dev libxml2-dev libonig-dev \
+    libkrb5-dev libc-client2007e-dev libssl-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install -j$(nproc) pdo_mysql mbstring gd zip exif intl bcmath opcache calendar \
- && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+ # IMAP (com Kerberos + SSL). Em Debian use o prefixo /usr para OpenSSL.
+ && docker-php-ext-configure imap --with-kerberos --with-imap-ssl=/usr \
  && docker-php-ext-install imap \
  && a2enmod rewrite \
  && rm -rf /var/lib/apt/lists/*
 
-# Composer (copia do container oficial)
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Código
 WORKDIR /var/www/html
 COPY . /var/www/html
 
-# Permissões das pastas Laravel
+# Permissões Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Instala dependências PHP (sem dev) e otimiza autoloader
+# Dependências PHP
 RUN composer install --no-dev --prefer-dist --optimize-autoloader
 
-# Aponta VirtualHost para /public
+# VirtualHost aponta para /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Cria o entrypoint sem precisar de arquivo externo
+# Entrypoint embutido (sem arquivo extra)
 RUN bash -lc 'cat > /usr/local/bin/docker-entrypoint.sh << "EOF"\n\
 #!/usr/bin/env bash\n\
 set -e\n\
@@ -37,7 +38,7 @@ php artisan key:generate --force || true\n\
 php artisan storage:link || true\n\
 php artisan migrate --force\n\
 php artisan db:seed --force || true\n\
-exec "$@"\n\
+exec \"$@\"\n\
 EOF\n\
 chmod +x /usr/local/bin/docker-entrypoint.sh'
 
