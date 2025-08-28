@@ -25,17 +25,19 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platf
 # VirtualHost aponta para /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Entrypoint embutido
-RUN bash -lc 'cat > /usr/local/bin/docker-entrypoint.sh << "EOF"\n\
-#!/usr/bin/env bash\n\
-set -e\n\
-php artisan key:generate --force || true\n\
-php artisan storage:link || true\n\
-php artisan migrate --force\n\
-php artisan db:seed --force || true\n\
-exec \"$@\"\n\
-EOF\n\
-chmod +x /usr/local/bin/docker-entrypoint.sh'
+# Entrypoint embutido (idempotente)
+RUN set -eux; \
+    printf '%s\n' \
+'#!/usr/bin/env bash' \
+'set -e' \
+'php artisan key:generate --force || true' \
+'php artisan storage:link || true' \
+'php artisan migrate --force' \
+'php artisan db:seed --force || true' \
+'exec "$@"' \
+    > /usr/local/bin/docker-entrypoint.sh; \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
+
 
 ENV APACHE_RUN_USER=www-data
 ENV APACHE_RUN_GROUP=www-data
