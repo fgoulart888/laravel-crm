@@ -1,9 +1,9 @@
 <?php
-use Illuminate\Support\Facades\URL;
 
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,8 +22,10 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        //
+        if (env('APP_FORCE_HTTPS', false)) {
+            URL::forceScheme('https');
+        }
     }
 }
