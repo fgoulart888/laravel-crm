@@ -25,18 +25,29 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platf
 # VirtualHost aponta para /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Entrypoint embutido (idempotente)
+# Entrypoint embutido (cria .env, ajusta permissões, prepara Laravel)
 RUN set -eux; \
     printf '%s\n' \
 '#!/usr/bin/env bash' \
 'set -e' \
+'# cria .env se não existir' \
+'[ -f .env ] || cp .env.example .env' \
+'# permissões' \
+'chown -R www-data:www-data storage bootstrap/cache .env' \
+'chmod -R 775 storage bootstrap/cache || true' \
+'chmod 664 .env || true' \
+'# prepara app' \
 'php artisan key:generate --force || true' \
 'php artisan storage:link || true' \
+'php artisan config:clear || true' \
+'php artisan route:clear || true' \
+'php artisan cache:clear || true' \
 'php artisan migrate --force' \
 'php artisan db:seed --force || true' \
 'exec "$@"' \
     > /usr/local/bin/docker-entrypoint.sh; \
     chmod +x /usr/local/bin/docker-entrypoint.sh
+
 
 
 ENV APACHE_RUN_USER=www-data
