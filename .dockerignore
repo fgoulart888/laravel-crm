@@ -2,6 +2,6 @@
 .github
 node_modules
 vendor
-docker-entrypoint.sh
 Dockerfile
+docker-entrypoint.sh
 docker-compose.yml
