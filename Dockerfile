@@ -29,9 +29,17 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader
 # Aponta VirtualHost para /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Entrypoint que prepara a app
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Cria o entrypoint sem precisar de arquivo externo
+RUN bash -lc 'cat > /usr/local/bin/docker-entrypoint.sh << "EOF"\n\
+#!/usr/bin/env bash\n\
+set -e\n\
+php artisan key:generate --force || true\n\
+php artisan storage:link || true\n\
+php artisan migrate --force\n\
+php artisan db:seed --force || true\n\
+exec "$@"\n\
+EOF\n\
+chmod +x /usr/local/bin/docker-entrypoint.sh'
 
 ENV APACHE_RUN_USER=www-data
 ENV APACHE_RUN_GROUP=www-data
