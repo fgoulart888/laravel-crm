@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
     libicu-dev libxml2-dev libonig-dev libssl-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install -j$(nproc) pdo_mysql mbstring gd zip exif intl bcmath opcache calendar \
- && a2enmod rewrite \
  && rm -rf /var/lib/apt/lists/*
 
 # Composer
@@ -19,20 +18,27 @@ WORKDIR /var/www/html
 RUN rm -rf /var/www/html/* && \
     git clone -b v2.1.2 --depth 1 https://github.com/krayin/laravel-crm.git /var/www/html
 
-# Instala dependências do Laravel (mesma flag do seu 2.1: ignora IMAP)
+# Instala dependências do Laravel (ignora IMAP como no seu 2.1)
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-req=ext-imap
 
-# VirtualHost aponta para /public (igual ao seu 2.1)
+# Apache: DocumentRoot aponta para /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Permissões Laravel (igual ao seu 2.1)
+# Habilita módulos necessários (rewrite + headers p/ ler X-Forwarded-Proto)
+RUN a2enmod rewrite headers
+
+# Marca HTTPS=on quando o proxy enviar X-Forwarded-Proto=https
+# (arquivo criado por você em docker/apache-forwarded-https.conf)
+COPY docker/apache-forwarded-https.conf /etc/apache2/conf-available/forwarded-https.conf
+RUN a2enconf forwarded-https
+
+# Permissões Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
     find storage -type d -exec chmod 775 {} \; && \
     find storage -type f -exec chmod 664 {} \; && \
     chmod -R 775 bootstrap/cache
 
-# Copia SUAS customizações por cima (logo, traduções, etc.)
-# -> coloque seus arquivos na pasta overrides/ com a mesma estrutura do app
+# Copia SUAS customizações (logo, traduções) por cima do core
 COPY overrides/ /var/www/html/
 
 # Entrypoint (prepara .env, links, caches, migrate, seed)
