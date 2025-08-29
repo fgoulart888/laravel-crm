@@ -5,3 +5,5 @@ vendor
 Dockerfile
 docker-entrypoint.sh
 docker-compose.yml
+.DS_Store
+overrides/.keep
