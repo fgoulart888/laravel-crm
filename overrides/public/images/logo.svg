@@ -1,3 +1,16 @@
 overrides/public/images/logo.svg
 overrides/packages/Webkul/Admin/src/Resources/lang/pt_BR/app.php
 overrides/packages/Webkul/UI/src/Resources/assets/images/logo.svg
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="120" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HIPERLEADS">
+  <defs>
+    <style>
+      .navy { fill:#142B3A; }  /* azul marinho */
+      .blue { fill:#18A8E0; }  /* azul vivo */
+    </style>
+  </defs>
+
+  <text x="0" y="85" font-family="Montserrat, Arial, Helvetica, sans-serif" font-size="72" font-weight="700" letter-spacing="1">
+    <tspan class="navy">HIPER</tspan><tspan class="blue">LEADS</tspan>
+  </text>
+</svg>
