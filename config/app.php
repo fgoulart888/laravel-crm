@@ -82,7 +82,7 @@ return [
     |
      */
 
-    'timezone' => env('APP_TIMEZONE', 'Asia/Kolkata'),
+    'timezone' => env('APP_TIMEZONE', 'America/Sao_Paulo'), // ALTERADO: De 'Asia/Kolkata' para 'America/Sao_Paulo'
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ return [
     |
      */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'pt_BR'), // ALTERADO: De 'en' para 'pt_BR'
 
     /*
     |--------------------------------------------------------------------------
@@ -112,7 +112,7 @@ return [
         'en'    => 'English',
         'es'    => 'Español',
         'fa'    => 'Persian',
-        'pt_BR' => 'Portuguese',
+        'pt_BR' => 'Portuguese', // Pode manter ou alterar para 'Português (Brasil)'
         'tr'    => 'Türkçe',
         'vi'    => 'Vietnamese',
     ],
@@ -141,7 +141,7 @@ return [
     |
      */
 
-    'faker_locale' => 'en_US',
+    'faker_locale' => 'pt_BR', // ALTERADO: De 'en_US' para 'pt_BR'
 
     /*
     |--------------------------------------------------------------------------
@@ -152,7 +152,7 @@ return [
     |
      */
 
-    'currency' => env('APP_CURRENCY', 'BRL'),
+    'currency' => env('APP_CURRENCY', 'BRL'), // JÁ ALTERADO: De 'USD' para 'BRL'
 
     /*
     |--------------------------------------------------------------------------
