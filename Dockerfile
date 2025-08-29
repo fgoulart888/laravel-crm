@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# SO + extensões PHP
+# Pacotes de SO e libs p/ extensões PHP
 RUN apt-get update && apt-get install -y \
     git unzip curl \
     libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
@@ -14,32 +14,23 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# --- versão do Krayin vinda de arquivo ---
-COPY KRAYIN_REF /tmp/KRAYIN_REF
-
-# Clone da release conforme KRAYIN_REF
+# ↓↓↓ PULL DA RELEASE ESTÁVEL v2.1.2 DO KRAYIN ↓↓↓
 RUN rm -rf /var/www/html/* && \
-    KRAYIN_REF="$(cat /tmp/KRAYIN_REF)" && \
-    echo "Building with KRAYIN_REF=$KRAYIN_REF" && \
-    git clone -b "$KRAYIN_REF" --depth 1 https://github.com/krayin/laravel-crm.git /var/www/html
+    git clone -b v2.1.2 --depth 1 https://github.com/krayin/laravel-crm.git /var/www/html
 
-# Dependências Laravel
+# Instala dependências do Laravel (ignora IMAP como no seu 2.1)
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-req=ext-imap
 
-# Apache → DocumentRoot em /public
+# Apache: DocumentRoot aponta para /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Módulos necessários
+# Habilita módulos necessários (rewrite + headers p/ ler X-Forwarded-Proto)
 RUN a2enmod rewrite headers
 
-# Conf: considerar HTTPS quando vier X-Forwarded-Proto=https
+# Marca HTTPS=on quando o proxy enviar X-Forwarded-Proto=https
+# (arquivo criado por você em docker/apache-forwarded-https.conf)
 COPY docker/apache-forwarded-https.conf /etc/apache2/conf-available/forwarded-https.conf
 RUN a2enconf forwarded-https
-
-# *** ServerName para remover o aviso AH00558 ***
-# Se preferir, troque pelo seu domínio; 'localhost' já elimina o warning.
-RUN printf "ServerName hiperleads.up.railway.app\n" > /etc/apache2/conf-available/servername.conf \
- && a2enconf servername
 
 # Permissões Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
@@ -47,10 +38,10 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     find storage -type f -exec chmod 664 {} \; && \
     chmod -R 775 bootstrap/cache
 
-# Suas customizações
+# Copia SUAS customizações (logo, traduções) por cima do core
 COPY overrides/ /var/www/html/
 
-# Entrypoint
+# Entrypoint (prepara .env, links, caches, migrate, seed)
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
