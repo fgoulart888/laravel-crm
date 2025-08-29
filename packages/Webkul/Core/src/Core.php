@@ -127,12 +127,10 @@ class Core
     /**
      * Retrieve all grouped states by country code.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection|false
      */
     public function findStateByCountryCode($countryCode = null, $stateCode = null)
     {
-        $collection = [];
-
         $collection = $this->countryStateRepository->findByField([
             'country_code' => $countryCode,
             'code'         => $stateCode,
@@ -197,21 +195,26 @@ class Core
     /**
      * Return currency symbol from currency code.
      *
-     * @param  float  $price
+     * @param  string|null  $code
      * @return string
      */
-    public function currencySymbol($code)
+    public function currencySymbol($code = null)
     {
+        $code = $code ?: $this->currentCurrencyCode();
+
+        if ($code === 'BRL') {
+            return 'R$';
+        }
+
         $formatter = new \NumberFormatter(app()->getLocale().'@currency='.$code, \NumberFormatter::CURRENCY);
 
         return $formatter->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
     }
 
     /**
-     * Format price with base currency symbol. This method also give ability to encode
-     * the base currency symbol and its optional.
+     * Format price with base currency symbol.
      *
-     * @param  float  $price
+     * @param  float|null  $price
      * @return string
      */
     public function formatBasePrice($price)
@@ -220,9 +223,18 @@ class Core
             $price = 0;
         }
 
-        $formatter = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+        $code   = $this->currentCurrencyCode();
+        $locale = app()->getLocale() ?: 'pt_BR';
 
-        return $formatter->formatCurrency($price, config('app.currency'));
+        if ($code === 'BRL') {
+            // Formatação brasileira
+            return 'R$ ' . number_format($price, 2, ',', '.');
+        }
+
+        // Outras moedas seguem Intl
+        $formatter = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
+
+        return $formatter->formatCurrency($price, $code);
     }
 
     /**
@@ -239,5 +251,37 @@ class Core
     public function getConfigData(string $field): mixed
     {
         return system_config()->getConfigData($field);
+    }
+
+    /**
+     * Resolve the current currency code with fallbacks.
+     */
+    private function currentCurrencyCode(): string
+    {
+        // 1) .env
+        $env = env('APP_CURRENCY');
+
+        if (! empty($env)) {
+            return strtoupper($env);
+        }
+
+        // 2) Banco (core_config)
+        try {
+            $db = system_config()->getConfigData('general.settings.currency');
+            if (! empty($db)) {
+                return strtoupper($db);
+            }
+        } catch (\Throwable $e) {
+            // ignora se não houver durante bootstrap
+        }
+
+        // 3) config/app.php
+        $cfg = config('app.currency');
+        if (! empty($cfg)) {
+            return strtoupper($cfg);
+        }
+
+        // 4) padrão
+        return 'BRL';
     }
 }
