@@ -12,7 +12,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
@@ -24,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Se APP_FORCE_HTTPS=true no .env (ou nas variáveis do Railway),
+        // força que todas as URLs geradas usem https://
         if (env('APP_FORCE_HTTPS', false)) {
             URL::forceScheme('https');
         }
