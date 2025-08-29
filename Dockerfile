@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Pacotes de SO e libs p/ extensões PHP
+# SO + extensões PHP
 RUN apt-get update && apt-get install -y \
     git unzip curl \
     libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
@@ -17,24 +17,29 @@ WORKDIR /var/www/html
 # --- versão do Krayin vinda de arquivo ---
 COPY KRAYIN_REF /tmp/KRAYIN_REF
 
-# ↓↓↓ Clone da release do Krayin baseada no arquivo de versão ↓↓↓
+# Clone da release conforme KRAYIN_REF
 RUN rm -rf /var/www/html/* && \
     KRAYIN_REF="$(cat /tmp/KRAYIN_REF)" && \
     echo "Building with KRAYIN_REF=$KRAYIN_REF" && \
     git clone -b "$KRAYIN_REF" --depth 1 https://github.com/krayin/laravel-crm.git /var/www/html
 
-# Instala dependências do Laravel
+# Dependências Laravel
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-req=ext-imap
 
-# Apache: DocumentRoot aponta para /public
+# Apache → DocumentRoot em /public
 RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# Habilita módulos necessários (rewrite + headers p/ ler X-Forwarded-Proto)
+# Módulos necessários
 RUN a2enmod rewrite headers
 
-# Marca HTTPS=on quando o proxy enviar X-Forwarded-Proto=https
+# Conf: considerar HTTPS quando vier X-Forwarded-Proto=https
 COPY docker/apache-forwarded-https.conf /etc/apache2/conf-available/forwarded-https.conf
 RUN a2enconf forwarded-https
+
+# *** ServerName para remover o aviso AH00558 ***
+# Se preferir, troque pelo seu domínio; 'localhost' já elimina o warning.
+RUN printf "ServerName hiperleads.up.railway.app\n" > /etc/apache2/conf-available/servername.conf \
+ && a2enconf servername
 
 # Permissões Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
@@ -42,10 +47,10 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     find storage -type f -exec chmod 664 {} \; && \
     chmod -R 775 bootstrap/cache
 
-# Copia SUAS customizações (logo, traduções) por cima do core
+# Suas customizações
 COPY overrides/ /var/www/html/
 
-# Entrypoint (prepara .env, links, caches, migrate, seed)
+# Entrypoint
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
