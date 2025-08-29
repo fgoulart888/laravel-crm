@@ -14,11 +14,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# ↓↓↓ PULL DA RELEASE ESTÁVEL v2.1.2 DO KRAYIN ↓↓↓
-RUN rm -rf /var/www/html/* && \
-    git clone -b v2.1.2 --depth 1 https://github.com/krayin/laravel-crm.git /var/www/html
+# --- versão do Krayin vinda de arquivo ---
+COPY KRAYIN_REF /tmp/KRAYIN_REF
 
-# Instala dependências do Laravel (ignora IMAP como no seu 2.1)
+# ↓↓↓ Clone da release do Krayin baseada no arquivo de versão ↓↓↓
+RUN rm -rf /var/www/html/* && \
+    KRAYIN_REF="$(cat /tmp/KRAYIN_REF)" && \
+    echo "Building with KRAYIN_REF=$KRAYIN_REF" && \
+    git clone -b "$KRAYIN_REF" --depth 1 https://github.com/krayin/laravel-crm.git /var/www/html
+
+# Instala dependências do Laravel
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --ignore-platform-req=ext-imap
 
 # Apache: DocumentRoot aponta para /public
@@ -28,7 +33,6 @@ RUN sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-availabl
 RUN a2enmod rewrite headers
 
 # Marca HTTPS=on quando o proxy enviar X-Forwarded-Proto=https
-# (arquivo criado por você em docker/apache-forwarded-https.conf)
 COPY docker/apache-forwarded-https.conf /etc/apache2/conf-available/forwarded-https.conf
 RUN a2enconf forwarded-https
 
