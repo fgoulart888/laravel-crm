@@ -1,0 +1,22 @@
+<?php
+
+return [
+    'contacts' => [
+        'title'         => 'Contatos',
+        'persons'       => 'Pessoas',
+        'organizations' => 'Empresas',
+
+        'person-view' => [
+            'mail'         => 'E-mail',
+            'file'         => 'Arquivo',
+            'note'         => 'Nota',
+            'activity'     => 'Atividade',
+            'about-person' => 'Sobre a Pessoa',
+            'emails'       => 'E-mails',
+            'phone'        => 'Números de Contato',
+            'job-title'    => 'Cargo',
+            'owner'        => 'Responsável pela Venda',
+            'company'      => 'Empresa',
+        ],
+    ],
+];
