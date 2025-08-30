@@ -1,29 +1,13 @@
 <?php
 
 return [
-    'actions'           => 'Ações',
-    'id'                => 'ID',
-    'name'              => 'Nome',
-    'title'             => 'Título',
-    'email'             => 'E-mail',
-    'phone'             => 'Telefone',
-    'owner'             => 'Responsável',
-    'status'            => 'Status',
-    'stage'             => 'Estágio',
-    'amount'            => 'Valor',
-    'created-at'        => 'Criado em',
-    'updated-at'        => 'Atualizado em',
-    'view'              => 'Visualizar',
-    'edit'              => 'Editar',
-    'delete'            => 'Excluir',
-    'restore'           => 'Restaurar',
-    'export'            => 'Exportar',
-    'search'            => 'Buscar...',
-    'no-records-found'  => 'Nenhum registro encontrado.',
-    'per-page'          => 'por página',
-    'of'                => 'de',
-    'results'           => 'resultados',
-    'select'            => 'Selecionar',
-    'bulk-actions'      => 'Ações em massa',
-    'apply'             => 'Aplicar',
+    'leads' => [
+        'title'      => 'Leads',
+        'create-btn' => 'Criar Lead',
+
+        'kanban' => [
+            'empty-title' => 'Sua lista de leads está vazia',
+            'empty-desc'  => 'Crie um lead para organizar suas metas.',
+        ],
+    ],
 ];
