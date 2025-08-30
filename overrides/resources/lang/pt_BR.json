@@ -1,6 +1,5 @@
 {
   "Dashboard": "Início",
-
   "Won Revenue": "Negócios Ganhos",
   "Lost Revenue": "Negócios Perdidos",
   "Average Lead Value": "Ticket médio",
@@ -15,67 +14,11 @@
   "Top Products": "Produtos em destaque",
   "Top Persons": "Pessoas em destaque",
   "No Data Available": "Nenhum dado disponível para o intervalo selecionado",
-
-  "Leads": "Leads",
-  "Your Leads List is Empty": "Sua lista de leads está vazia",
-  "Create Lead": "Criar Lead",
-  "Create a lead to organize your goals.": "Crie um lead para organizar suas metas.",
-
   "Search": "Buscar",
-  "Mega Search": "Busca Avançada",
   "Filter": "Filtrar",
-  "Per Page": "Por página",
-
-  "Settings": "Configurações",
-  "Groups": "Grupos",
-  "Roles": "Papéis",
-  "Users": "Usuários",
-  "Add, edit or delete groups from CRM": "Adicione, edite ou exclua grupos no CRM",
-  "Add, edit or delete roles from CRM": "Adicione, edite ou exclua papéis no CRM",
-  "Add, edit or delete users from CRM": "Adicione, edite ou exclua usuários no CRM",
-
-  "Pipelines": "Funis",
-  "Sources": "Origens",
-  "Types": "Tipos",
-  "Add, edit or delete pipelines from CRM": "Adicione, edite ou exclua funis no CRM",
-  "Add, edit or delete sources from CRM": "Adicione, edite ou exclua origens no CRM",
-  "Add, edit or delete types from CRM": "Adicione, edite ou exclua tipos no CRM",
-
-  "Warehouses": "Depósitos",
-  "Add, edit or delete warehouses from CRM": "Adicione, edite ou exclua depósitos no CRM",
-
-  "Attributes": "Atributos",
-  "Email Templates": "Modelos de E-mail",
-  "Events": "Eventos",
-  "Campaigns": "Campanhas",
-  "Webhooks": "Webhooks",
-  "Workflows": "Automação (Workflows)",
-  "Data Transfer": "Transferência de Dados",
-  "Add, edit or delete attributes from CRM": "Adicione, edite ou exclua atributos no CRM",
-  "Add, edit or delete email templates from CRM": "Adicione, edite ou exclua modelos de e-mail no CRM",
-  "Add, edit or delete events from CRM": "Adicione, edite ou exclua eventos no CRM",
-  "Add, edit or delete campaigns from CRM": "Adicione, edite ou exclua campanhas no CRM",
-  "Add, edit or delete webhooks from CRM": "Adicione, edite ou exclua webhooks no CRM",
-  "Add, edit or delete workflows from CRM": "Adicione, edite ou exclua automações no CRM",
-  "Manage persons, products and leads data transfer related settings in the CRM": "Gerencie configurações de transferência de dados de pessoas, produtos e leads no CRM",
-
-  "Web Forms": "Formulários Web",
-  "Add, edit or delete webforms from CRM": "Adicione, edite ou exclua formulários web no CRM",
-  "Tags": "Tags",
-  "Add, edit or delete tags from CRM": "Adicione, edite ou exclua tags no CRM",
-
-  "All": "Tudo",
-  "Planned": "Planejadas",
-  "Notes": "Notas",
-  "Calls": "Ligações",
-  "Meetings": "Reuniões",
-  "Lunches": "Almoços",
-  "Files": "Arquivos",
-  "Emails": "E-mails",
-  "Changelogs": "Histórico de alterações",
-
-  "No products available for selected interval": "Nenhum produto disponível para o intervalo selecionado",
-  "No persons available for selected interval": "Nenhuma pessoa disponível para o intervalo selecionado"
+  "Create Lead": "Criar Lead",
+  "Your Leads List is Empty": "Sua lista de leads está vazia",
+  "Create a lead to organize your goals.": "Crie um lead para organizar suas metas.",
   "US$": "R$",
   "USD": "BRL"
 }
