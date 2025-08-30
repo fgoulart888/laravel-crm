@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'quotes' => [
+        'title'      => 'Propostas',
+        'create-btn' => 'Criar Proposta',
+
+        'datagrid' => [
+            'subject'      => 'Assunto',
+            'sales-person' => 'Vendedor',
+            'expired-quote'=> 'Proposta expira',
+            'person'       => 'Pessoa',
+            'subtotal'     => 'Subtotal',
+            'discount'     => 'Desconto',
+            'tax'          => 'Impostos',
+            'adjustment'   => 'Ajuste',
+            'grand-total'  => 'Total',
+            'expired-at'   => 'Expira em',
+            'created-at'   => 'Criado em',
+            'actions'      => 'Ações',
+            'no-records'   => 'Nenhum registro disponível.',
+        ],
+    ],
+];
