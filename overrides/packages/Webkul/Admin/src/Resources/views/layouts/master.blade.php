@@ -2,108 +2,88 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
     @include ('admin::layouts.head')
-</head>
 
+    {{-- Flatpickr CSS para garantir estilo do calendário --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+</head>
 <body>
     <div id="app" class="content-container">
         <flash-wrapper ref="flashes"></flash-wrapper>
-
-        {{-- Conteúdo padrão do Admin --}}
         @yield('content-wrapper')
     </div>
 
-    {{-- Pilha de scripts do próprio Krayin/Admin --}}
     @stack('scripts')
 
-    {{-- === PT-BR: Calendário + Formato de data (Flatpickr) === --}}
-    {{-- Carrega Flatpickr e locale pt sem alterar o backend --}}
+    <script>console.log('override master OK');</script>
+
+    {{-- Calendário pt-BR + data dd/mm/aaaa --}}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
 
     <script>
       (function () {
+        // ---- DATA/PT-BR ----
         function initDates(root) {
           if (!window.flatpickr) return;
 
-          // Localiza para português (nomes dos meses, dias, etc.)
+          // Locale em português
           flatpickr.localize(flatpickr.l10ns.pt);
 
-          // Seletor dos campos de data mais comuns no Admin
+          // Seletor amplo para pegar tudo que vira Flatpickr
           var selectors = [
+            ".flatpickr-input",             // inputs já inicializados
             "input[type='date']",
             "input[type='datetime-local']",
             ".date",
             ".date-time",
-            ".date-range input"
+            ".date-range input"             // os 2 inputs do intervalo do dashboard
           ];
 
-          selectors.forEach(function (sel) {
-            (root || document).querySelectorAll(sel).forEach(function (el) {
-              try {
-                // Se já tiver instância, só reajusta; senão, cria
-                if (el._flatpickr) {
-                  el._flatpickr.set('locale', 'pt');
-                  el._flatpickr.set('dateFormat', 'd/m/Y');
-                } else {
-                  flatpickr(el, {
-                    locale: 'pt',
-                    dateFormat: 'd/m/Y',
-                    allowInput: true
-                  });
-                }
-              } catch (e) {
-                console.warn('Flatpickr PT-BR skip:', e);
+          (root || document).querySelectorAll(selectors.join(',')).forEach(function (el) {
+            try {
+              if (el._flatpickr) {
+                el._flatpickr.set('locale', 'pt');
+                el._flatpickr.set('dateFormat', 'd/m/Y');
+              } else {
+                // Evita criar duas vezes em inputs que o Krayin monta depois
+                flatpickr(el, {
+                  locale: 'pt',
+                  dateFormat: 'd/m/Y',
+                  allowInput: true
+                });
               }
-            });
+            } catch (e) {
+              console.warn('Flatpickr PT-BR:', e);
+            }
           });
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-          initDates();
+        // ---- BRL (visual) com Intl.NumberFormat ----
+        const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-          // Em páginas com navegação dinâmica, reaplica
-          setTimeout(initDates, 400);
-          setTimeout(initDates, 1200);
-        });
+        // Extrai número de um texto que pode vir como "US$ 1,234.56" ou "1,234.56"
+        function toNumberFromAny(text) {
+          if (!text) return null;
+          // remove US$, espaços e NBSP
+          let t = text.replace(/US\$\s*/g, '')
+                      .replace(/\u00A0/g, ' ')
+                      .trim();
 
-        // Caso o tema dispare eventos de troca de tela
-        document.addEventListener('krayin:page:loaded', function (e) {
-          initDates(e && e.target ? e.target : document);
-        });
-      })();
-    </script>
-    {{-- === /PT-BR: Calendário + Formato de data === --}}
+          // se já está em pt-BR (1.234,56), inverte para número
+          if (/\d+\.\d{3}(?:\.\d{3})*,\d+|\d+,\d+/.test(t)) {
+            t = t.replace(/\./g, '').replace(',', '.');
+          } else {
+            // estilo EN: 1,234,567.89 -> tira milhar
+            t = t.replace(/,/g, '');
+          }
 
-    {{-- === PT-BR: Formatação visual de moeda para BRL (R$ 1.234,56) === --}}
-    <script>
-      (function () {
-        function brlFormatText(text) {
-          if (!text) return text;
-
-          // 1) troca prefixos "US$" por "R$ "
-          var t = text.replace(/US\$\s?/g, 'R$ ');
-
-          // 2) converte números estilo EN -> PT-BR
-          // casa números com possíveis milhares e decimais
-          return t.replace(/(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)/g, function (num) {
-            // remove vírgulas de milhar EN
-            var n = num.replace(/,/g, '');
-            var parts = n.split('.');
-            var intPart = parts[0];
-            var decPart = parts[1] || '00';
-
-            // formata milhar com ponto
-            intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-            // fixa 2 casas decimais
-            decPart = (decPart + '00').slice(0, 2);
-
-            return intPart + ',' + decPart;
-          });
+          const n = parseFloat(t.match(/-?\d+(\.\d+)?/)?.[0] || '');
+          return isNaN(n) ? null : n;
         }
 
         function applyBRL(root) {
-          var targets = [
+          // Locais comuns de valores
+          const targets = [
             '.card .value',
             '.statistics .value',
             '.datagrid-table td',
@@ -113,28 +93,48 @@
             '.price',
             '.total',
             '.grand-total',
-            '.currency, .money, .balance'
+            '.currency',
+            '.money',
+            '.balance'
           ].join(',');
 
           (root || document).querySelectorAll(targets).forEach(function (el) {
-            if (el && el.textContent && /US\$/.test(el.textContent)) {
-              el.textContent = brlFormatText(el.textContent.trim());
+            const txt = (el.textContent || '').trim();
+
+            // Só mexe se aparecer "US$" ou se for um número “nu” que parece preço
+            if (/US\$/.test(txt) || /(^|[\s>])\d{1,3}([.,]\d{3})*([.,]\d{2})($|[\s<])/.test(txt)) {
+              const num = toNumberFromAny(txt);
+              if (num !== null) {
+                el.textContent = brl.format(num);
+              }
             }
           });
         }
 
+        function applyAll(root) {
+          initDates(root);
+          applyBRL(root);
+        }
+
+        // Primeiras execuções
         document.addEventListener('DOMContentLoaded', function () {
-          applyBRL();
-          setTimeout(applyBRL, 400);
-          setTimeout(applyBRL, 1200);
+          applyAll();
+          setTimeout(applyAll, 300);
+          setTimeout(applyAll, 1200);
         });
 
-        // Reaplicar em mudanças dinâmicas
+        // Se o tema disparar evento próprio
         document.addEventListener('krayin:page:loaded', function (e) {
-          applyBRL(e && e.target ? e.target : document);
+          applyAll(e && e.target ? e.target : document);
         });
+
+        // Observa mudanças no DOM (SPA-like, AJAX, componentes Vue)
+        const mo = new MutationObserver(function (mutations) {
+          // roda de forma barata; se ficar pesado, podemos refinar
+          applyAll();
+        });
+        mo.observe(document.documentElement, { childList: true, subtree: true });
       })();
     </script>
-    {{-- === /PT-BR: Formatação visual de moeda === --}}
 </body>
 </html>
