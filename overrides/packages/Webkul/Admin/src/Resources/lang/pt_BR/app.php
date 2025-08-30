@@ -1,34 +1,29 @@
 <?php
 
-return array_merge(
-    // mantenha o que você já tem e junte com isto:
-    [
-        'dashboard' => 'Início',
-        'leads'     => 'Leads',
-        'deals'     => 'Negócios',
-        'contacts'  => 'Contatos',
-        'companies' => 'Empresas',
-        'quotes'    => 'Cotações',
-        'products'  => 'Produtos',
-        'activities'=> 'Atividades',
-        'settings'  => 'Configurações',
-        'users'     => 'Usuários',
-
-        'add'       => 'Adicionar',
-        'edit'      => 'Editar',
-        'update'    => 'Atualizar',
-        'delete'    => 'Excluir',
-        'save'      => 'Salvar',
-        'cancel'    => 'Cancelar',
-        'close'     => 'Fechar',
-        'back'      => 'Voltar',
-        'view'      => 'Visualizar',
-        'search'    => 'Buscar',
-
-        'login'     => 'Entrar',
-        'logout'    => 'Sair',
-        'email'     => 'E-mail',
-        'password'  => 'Senha',
-        'remember_me' => 'Lembrar-me',
-    ]
-);
+return [
+    'actions'           => 'Ações',
+    'id'                => 'ID',
+    'name'              => 'Nome',
+    'title'             => 'Título',
+    'email'             => 'E-mail',
+    'phone'             => 'Telefone',
+    'owner'             => 'Responsável',
+    'status'            => 'Status',
+    'stage'             => 'Estágio',
+    'amount'            => 'Valor',
+    'created-at'        => 'Criado em',
+    'updated-at'        => 'Atualizado em',
+    'view'              => 'Visualizar',
+    'edit'              => 'Editar',
+    'delete'            => 'Excluir',
+    'restore'           => 'Restaurar',
+    'export'            => 'Exportar',
+    'search'            => 'Buscar...',
+    'no-records-found'  => 'Nenhum registro encontrado.',
+    'per-page'          => 'por página',
+    'of'                => 'de',
+    'results'           => 'resultados',
+    'select'            => 'Selecionar',
+    'bulk-actions'      => 'Ações em massa',
+    'apply'             => 'Aplicar',
+];
